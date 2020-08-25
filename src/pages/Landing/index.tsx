@@ -1,14 +1,34 @@
-import React from 'react';
-import { View, Image, Text, TouchableOpacity } from 'react-native';
-
+import React, { useEffect, useState } from 'react';
+import { View, Image, Text } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import styles from './styles';
-
 import landingImg from '../../assets/images/landing.png';
 import studyIcon from '../../assets/images/icons/study.png';
 import giveClassesIcon from '../../assets/images/icons/give-classes.png';
 import heartIcon from '../../assets/images/icons/heart.png';
+import { RectButton } from 'react-native-gesture-handler';
+import api from '../../services/api';
 
-function Landig() {
+function Landing() {
+  const { navigate } = useNavigation();
+  const [totalConnections, setTotalConnections] = useState(0);
+
+  useEffect(() => {
+    api.get('/connections').then((response) => {
+      const { total } = response.data;
+
+      setTotalConnections(total);
+    });
+  }, []);
+
+  function handleNavigateToGiveClassesPage() {
+    navigate('GiveClasses');
+  }
+
+  function handleNavigateToStudyPages() {
+    navigate('Study');
+  }
+
   return (
     <View style={styles.container}>
       <Image source={landingImg} style={styles.banner} />
@@ -19,24 +39,30 @@ function Landig() {
       </Text>
 
       <View style={styles.buttonsContainer}>
-        <TouchableOpacity style={[styles.button, styles.buttonPrimary]}>
+        <RectButton
+          style={[styles.button, styles.buttonPrimary]}
+          onPress={handleNavigateToStudyPages}
+        >
           <Image source={studyIcon} />
 
           <Text style={styles.buttonText}>Estudar</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.buttonSecondary]}>
+        </RectButton>
+        <RectButton
+          onPress={handleNavigateToGiveClassesPage}
+          style={[styles.button, styles.buttonSecondary]}
+        >
           <Image source={giveClassesIcon} />
 
           <Text style={styles.buttonText}>Dar aulas</Text>
-        </TouchableOpacity>
+        </RectButton>
       </View>
 
       <Text style={styles.totalConnections}>
-        Total de 285 conexões já realizadas {''}
+        Total de {totalConnections} conexões já realizadas {''}
         <Image source={heartIcon} />
       </Text>
     </View>
   );
 }
 
-export default Landig;
+export default Landing;
